@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מסע הטעימות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEF3EC;
+    --card: #FBFCFA;
+    --forest: #2F4A3B;
+    --forest-deep: #223529;
+    --honey: #E3A857;
+    --honey-deep: #C88936;
+    --coral: #D9765C;
+    --coral-deep: #9C4A34;
+    --coral-soft: #F3DAD1;
+    --ink: #26302B;
+    --ink-soft: #6B7A70;
+    --line: #DCE5DC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Rubik', sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 100px;
+  }
+  .phone{ width:100%; max-width:440px; }
+  .app-header{ text-align:center; margin-bottom:22px; }
+  .app-header .eyebrow{ font-size:12px; letter-spacing:0.14em; color:var(--ink-soft); text-transform:uppercase; }
+  .app-header h1{ font-family:'Frank Ruhl Libre', serif; font-weight:700; font-size:30px; margin:4px 0 2px; color:var(--forest-deep); }
+  .app-header .sub{ font-size:13px; color:var(--ink-soft); }
+
+  .tabs{ display:flex; background:var(--card); border-radius:999px; padding:5px; margin-bottom:20px; box-shadow:0 1px 2px rgba(38,48,43,0.06); border:1px solid var(--line); }
+  .tab{ flex:1; text-align:center; padding:10px 8px; border-radius:999px; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer; transition:.2s; user-select:none; }
+  .tab.active{ background:var(--forest); color:#fff; }
+  .view{ display:none; } .view.active{ display:block; }
+
+  .day-card{ position:relative; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:12px; display:flex; align-items:flex-start; gap:12px; }
+  .day-num{ flex:0 0 auto; width:40px; height:40px; border-radius:50%; background:var(--ink-soft); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre', serif; font-weight:700; font-size:14px; }
+  .day-card.inprogress .day-num{ background:var(--forest); }
+  .day-card.allergen.inprogress .day-num, .day-card.allergen.pending .day-num{ background:var(--coral); }
+  .day-card.done .day-num{ background:var(--forest); }
+  .day-card.done{ opacity:.6; }
+  .day-info{ flex:1; min-width:0; }
+  .day-info .food{ font-weight:600; font-size:15px; color:var(--forest-deep); }
+  .day-info .meta{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .badge{ font-size:10px; font-weight:700; padding:3px 9px; border-radius:999px; background:#E7EFE3; color:var(--forest); white-space:nowrap; }
+  .badge.allergen-badge{ background:var(--coral-soft); color:var(--coral-deep); }
+  .badge.success-badge{ background:var(--forest); color:#fff; }
+
+  .tries{ display:flex; gap:5px; margin-top:8px; }
+  .try-box{ width:24px; height:24px; border-radius:6px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent; background:#fff; cursor:pointer; transition:.15s; }
+  .try-box.checked{ background:var(--forest); border-color:var(--forest); color:#fff; }
+  .day-card.allergen .try-box.checked{ background:var(--coral); border-color:var(--coral); }
+
+  .note-toggle{ margin-top:8px; font-size:12px; color:var(--ink-soft); cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+  .note-box{ margin-top:8px; display:none; }
+  .note-box.open{ display:block; }
+  .note-box textarea{ width:100%; border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-family:'Rubik'; font-size:12.5px; resize:none; background:#fff; color:var(--ink); }
+  .note-box textarea::placeholder{ color:#A9B5AC; }
+  .note-preview{ margin-top:8px; background:var(--coral-soft); border-radius:10px; padding:8px 10px; font-size:12.5px; color:var(--ink); line-height:1.4; }
+  .note-preview b{ color:var(--coral-deep); font-size:11px; display:block; margin-bottom:2px; }
+
+  .section-title{ font-family:'Frank Ruhl Libre', serif; font-size:16px; color:var(--forest-deep); margin:22px 0 10px; display:flex; align-items:center; gap:8px; }
+  .section-title::after{ content:""; flex:1; height:1px; background:var(--line); }
+
+  .log-item{ display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line); }
+  .log-item:last-child{ border-bottom:none; }
+  .log-dot{ width:9px; height:9px; border-radius:50%; background:var(--forest); flex:0 0 auto; }
+  .log-text{ flex:1; font-size:13.5px; }
+  .log-text .lf{ font-weight:600; color:var(--forest-deep); }
+  .log-date{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+  .empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:20px 0; }
+
+  .add-card{ background:var(--card); border:1.5px dashed var(--line); border-radius:16px; padding:14px; margin-bottom:12px; }
+  .add-card input[type=text]{ width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-family:'Rubik'; font-size:13.5px; margin-bottom:8px; }
+  .add-card label{ font-size:12.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+  .add-card button{ width:100%; background:var(--forest); color:#fff; border:none; border-radius:10px; padding:10px; font-family:'Rubik'; font-weight:700; font-size:13.5px; cursor:pointer; }
+
+  .export-card{ background:linear-gradient(155deg, var(--honey-deep) 0%, var(--honey) 100%); border-radius:20px; padding:20px; color:#fff; margin-bottom:18px; }
+  .export-card .label{ font-size:12px; opacity:.85; }
+  .export-card .title2{ font-family:'Frank Ruhl Libre', serif; font-size:19px; margin:5px 0 10px; }
+  .export-card .desc{ font-size:12.5px; opacity:.9; margin-bottom:14px; line-height:1.5; }
+  .export-card input[type=text]{ width:100%; border:none; border-radius:10px; padding:10px 12px; font-family:'Rubik'; font-size:14px; font-weight:600; margin-bottom:10px; background:rgba(255,255,255,.9); color:var(--forest-deep); }
+  .export-card input[type=text]::placeholder{ color:#8A9A8D; font-weight:400; }
+  .export-card button{ width:100%; background:var(--forest-deep); color:#fff; border:none; border-radius:12px; padding:12px; font-family:'Rubik'; font-weight:700; font-size:14px; cursor:pointer; }
+
+  .fab{ position:fixed; bottom:26px; left:50%; transform:translateX(-50%); max-width:440px; width:calc(100% - 32px); background:var(--forest); color:#fff; border:none; border-radius:16px; padding:15px; font-family:'Rubik'; font-size:15px; font-weight:700; box-shadow:0 8px 20px rgba(47,74,59,.35); cursor:pointer; }
+
+  #printArea{ display:none; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #printArea, #printArea *{ visibility:visible; }
+    #printArea{ display:block; position:absolute; top:0; right:0; width:100%; padding:0; }
+    #printArea .print-header{
+      background:var(--forest);
+      color:#fff;
+      padding:28px 32px 22px;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    #printArea .print-eyebrow{ font-size:12px; letter-spacing:.12em; opacity:.75; text-transform:uppercase; }
+    #printArea .print-childname{ font-family:'Frank Ruhl Libre', serif; font-weight:700; font-size:30px; margin:4px 0 2px; }
+    #printArea .print-sub{ font-size:12.5px; opacity:.85; }
+    #printArea .print-summary{ display:flex; gap:22px; padding:16px 32px; border-bottom:2px solid var(--honey); }
+    #printArea .stat{ text-align:center; }
+    #printArea .stat .num{ font-family:'Frank Ruhl Libre', serif; font-size:22px; color:var(--forest-deep); font-weight:700; }
+    #printArea .stat .lbl{ font-size:10.5px; color:var(--ink-soft); }
+    #printArea .print-body{ padding:20px 32px; }
+    #printArea table{ width:100%; border-collapse:collapse; margin-top:6px; }
+    #printArea th{ background:var(--forest); color:#fff; padding:10px; text-align:right; font-size:12.5px; font-weight:600; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #printArea td{ border-bottom:1px solid var(--line); padding:10px; text-align:right; font-size:13px; }
+    #printArea .warn-row td{ background:var(--coral-soft); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #printArea .print-footer{ padding:14px 32px 28px; font-size:11px; color:var(--ink-soft); }
+    #printArea .legend{ display:inline-flex; align-items:center; gap:6px; margin-inline-end:16px; }
+    #printArea .legend-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="app-header">
+    <div class="eyebrow">מסע הטעימות</div>
+    <h1 id="headerTitle">התוכנית שלנו</h1>
+    <div class="sub" id="headerSub">-</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="plan">התוכנית</div>
+    <div class="tab" data-view="track">מעקב יומי</div>
+    <div class="tab" data-view="history">היסטוריה</div>
+  </div>
+
+  <div class="view active" id="plan"></div>
+  <div class="view" id="track"></div>
+  <div class="view" id="history"></div>
+
+  <button class="fab" id="addFoodBtn">+ הוסף מזון חדש</button>
+</div>
+
+<div id="printArea">
+  <div class="print-header">
+    <div class="print-eyebrow">מסע הטעימות · דוח לגן</div>
+    <div class="print-childname" id="printChildName">—</div>
+    <div class="print-sub" id="printDate"></div>
+  </div>
+  <div class="print-summary" id="printSummary"></div>
+  <div class="print-body">
+    <table id="printTable"></table>
+  </div>
+  <div class="print-footer">
+    <span class="legend"><span class="legend-dot" style="background:var(--coral-soft);"></span>שורה מודגשת = יש הערה חשובה לתשומת לב</span>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'teimot-data-v1';
+
+const defaultFoods = [
+  {name:'בטטה מרוסקת', allergen:false},
+  {name:'גזר מרוסק', allergen:false},
+  {name:'קישוא מרוסק', allergen:false},
+  {name:'דלעת מרוסקת', allergen:false},
+  {name:'אבוקדו', allergen:false},
+  {name:'בננה', allergen:false},
+  {name:'אגס מבושל', allergen:false},
+  {name:'בשר בקר טחון', allergen:false},
+  {name:'עוף מבושל', allergen:false},
+  {name:'הודו', allergen:false},
+  {name:'דייסת תינוקות מועשרת בברזל', allergen:false},
+  {name:'עדשים מבושלות', allergen:false},
+  {name:'ברוקולי מבושל', allergen:false},
+  {name:'כרובית מבושלת', allergen:false},
+  {name:'ביצה קשה - חלמון', allergen:true},
+  {name:'טחינה גולמית מדוללת', allergen:true},
+  {name:'חמאת בוטנים מדוללת', allergen:true},
+  {name:'מוצרי חלב - יוגורט/גבינה', allergen:true},
+  {name:'חיטה - פסטה/לחם', allergen:true},
+  {name:'דג מבושל', allergen:true},
+  {name:'חמאת אגוזי עץ', allergen:true},
+  {name:'סויה', allergen:true},
+];
+
+function makeFood(name, allergen){
+  return {
+    id: 'f' + Math.random().toString(36).slice(2,9),
+    name, allergen: !!allergen,
+    tries: [false,false,false],
+    note: '',
+    log: [] // {tryIndex, date}
+  };
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){ console.error('storage read failed', e); }
+  const foods = defaultFoods.map(f => makeFood(f.name, f.allergen));
+  return { foods, childName: '' };
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){ console.error('storage save failed', e); }
+}
+
+let data = loadData();
+
+function status(food){
+  const doneCount = food.tries.filter(Boolean).length;
+  if(doneCount === 3) return 'done';
+  if(doneCount > 0) return 'inprogress';
+  return 'pending';
+}
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('he-IL', {day:'numeric', month:'numeric'});
+}
+
+function toggleTry(foodId, idx){
+  const food = data.foods.find(f => f.id === foodId);
+  if(!food) return;
+  const wasChecked = food.tries[idx];
+  food.tries[idx] = !wasChecked;
+  if(!wasChecked){
+    food.log.push({tryIndex: idx, date: new Date().toISOString()});
+  } else {
+    food.log = food.log.filter(l => l.tryIndex !== idx);
+  }
+  saveData();
+  renderAll();
+}
+
+function updateNote(foodId, value){
+  const food = data.foods.find(f => f.id === foodId);
+  if(!food) return;
+  food.note = value;
+  saveData();
+}
+
+function updateChildName(value){
+  data.childName = value;
+  saveData();
+}
+
+function addFood(name, allergen){
+  data.foods.push(makeFood(name, allergen));
+  saveData();
+  renderAll();
+}
+
+function foodCardHTML(food){
+  const st = status(food);
+  const classes = ['day-card', st, food.allergen ? 'allergen' : ''].join(' ').trim();
+  let badge = '<span class="badge">טרם התחילה</span>';
+  if(food.allergen) badge = '<span class="badge allergen-badge">אלרגן</span>';
+  if(st === 'done') badge = '<span class="badge success-badge">עברה בהצלחה</span>';
+  else if(st === 'inprogress') badge = food.allergen
+    ? '<span class="badge allergen-badge">אלרגן · בתהליך</span>'
+    : '<span class="badge">בתהליך</span>';
+
+  const numContent = st === 'done' ? '✓' : (food.tries.filter(Boolean).length + '/3');
+
+  const triesHTML = food.tries.map((checked, idx) => `
+    <div class="try-box ${checked ? 'checked' : ''}" onclick="toggleTry('${food.id}', ${idx})">${checked ? '✓' : ''}</div>
+  `).join('');
+
+  const hasNote = food.note && food.note.trim().length > 0;
+  const noteSection = `
+    <div class="note-toggle" onclick="document.getElementById('note-${food.id}').classList.toggle('open')">✏️ הערה${hasNote ? ' (יש הערה)' : ''}</div>
+    <div class="note-box ${hasNote ? '' : ''}" id="note-${food.id}">
+      <textarea rows="2" placeholder="לדוגמה: פריחה קלה, לעקוב..." oninput="updateNote('${food.id}', this.value)">${food.note || ''}</textarea>
+    </div>
+  `;
+
+  return `
+    <div class="${classes}">
+      <div class="day-num">${numContent}</div>
+      <div class="day-info">
+        <div class="food">${food.name}</div>
+        <div class="meta">${food.allergen ? 'אלרגן עיקרי · מומלץ בבוקר, בבית' : 'מזון רגיל'}</div>
+        <div class="tries">${triesHTML}</div>
+        ${noteSection}
+      </div>
+      ${badge}
+    </div>
+  `;
+}
+
+function renderPlan(){
+  const el = document.getElementById('plan');
+  const pending = data.foods.filter(f => status(f) !== 'done');
+  const done = data.foods.filter(f => status(f) === 'done');
+  let html = '';
+  if(pending.length === 0){
+    html += '<div class="empty">כל המזונות ברשימה עברו בהצלחה! אפשר להוסיף עוד.</div>';
+  } else {
+    html += pending.map(foodCardHTML).join('');
+  }
+  if(done.length){
+    html += `<div class="section-title">הושלמו (${done.length})</div>`;
+    html += done.map(foodCardHTML).join('');
+  }
+  el.innerHTML = html;
+}
+
+function renderTrack(){
+  const el = document.getElementById('track');
+  const entries = [];
+  data.foods.forEach(f => {
+    f.log.forEach(l => entries.push({food:f, ...l}));
+  });
+  entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  let html = '<div class="section-title">רשומות אחרונות</div>';
+  if(entries.length === 0){
+    html += '<div class="empty">עדיין אין תיעוד. סמנו ניסיון ראשון במסך "התוכנית".</div>';
+  } else {
+    html += entries.slice(0, 30).map(e => `
+      <div class="log-item">
+        <div class="log-dot" style="background:${e.food.allergen ? 'var(--coral)' : 'var(--forest)'}"></div>
+        <div class="log-text"><span class="lf">${e.food.name}</span> — ניסיון ${e.tryIndex + 1} מתוך 3</div>
+        <div class="log-date">${fmtDate(e.date)}</div>
+      </div>
+    `).join('');
+  }
+  el.innerHTML = html;
+}
+
+function renderHistory(){
+  const el = document.getElementById('history');
+  const done = data.foods.filter(f => status(f) === 'done');
+  const flagged = data.foods.filter(f => f.note && f.note.trim().length > 0);
+
+  let html = `
+    <div class="export-card">
+      <div class="label">מסמך לגן</div>
+      <div class="title2">רשימת מזונות שאושרו</div>
+      <input type="text" id="childNameInput" placeholder="שם הילדה" value="${data.childName ? data.childName.replace(/"/g,'&quot;') : ''}" oninput="updateChildName(this.value)">
+      <div class="desc">מסמך מוכן להדפסה/שמירה כ-PDF, כולל המזונות שעברו 3 ניסיונות בהצלחה וכל הערה שחשוב שהצוות בגן יידע עליה.</div>
+      <button onclick="exportPDF()">📄 ייצוא ל-PDF</button>
+    </div>
+  `;
+
+  html += `<div class="section-title">נוסו בהצלחה (${done.length})</div>`;
+  html += done.length
+    ? done.map(f => `
+        <div class="log-item">
+          <div class="log-dot"></div>
+          <div class="log-text"><span class="lf">${f.name}</span></div>
+        </div>
+      `).join('')
+    : '<div class="empty">עדיין אין מזונות שהושלמו.</div>';
+
+  html += `<div class="section-title">לתשומת לב</div>`;
+  html += flagged.length
+    ? flagged.map(f => `
+        <div class="log-item">
+          <div class="log-dot" style="background:var(--coral)"></div>
+          <div class="log-text"><span class="lf">${f.name}</span> — ${f.note}</div>
+        </div>
+      `).join('')
+    : '<div class="empty">אין הערות מיוחדות כרגע.</div>';
+
+  el.innerHTML = html;
+}
+
+function renderHeader(){
+  const total = data.foods.length;
+  const done = data.foods.filter(f => status(f) === 'done').length;
+  document.getElementById('headerSub').textContent = `${done} מתוך ${total} מזונות הושלמו`;
+}
+
+function renderAll(){
+  renderHeader();
+  renderPlan();
+  renderTrack();
+  renderHistory();
+}
+
+function exportPDF(){
+  const done = data.foods.filter(f => status(f) === 'done');
+  const flagged = data.foods.filter(f => f.note && f.note.trim().length > 0);
+
+  document.getElementById('printChildName').textContent = data.childName && data.childName.trim() ? data.childName.trim() : 'שם הילדה';
+  document.getElementById('printDate').textContent = 'הופק בתאריך ' + new Date().toLocaleDateString('he-IL');
+  document.getElementById('printSummary').innerHTML = `
+    <div class="stat"><div class="num">${done.length}</div><div class="lbl">מזונות אושרו</div></div>
+    <div class="stat"><div class="num">${flagged.length}</div><div class="lbl">הערות לתשומת לב</div></div>
+    <div class="stat"><div class="num">${data.foods.length}</div><div class="lbl">סה"כ ברשימה</div></div>
+  `;
+
+  let rows = '<tr><th>מזון</th><th>סטטוס</th><th>הערה</th></tr>';
+  done.forEach(f => {
+    const note = f.note && f.note.trim() ? f.note : '—';
+    rows += `<tr class="${note !== '—' ? 'warn-row' : ''}"><td>${f.name}</td><td>עבר בהצלחה</td><td>${note}</td></tr>`;
+  });
+  flagged.filter(f => status(f) !== 'done').forEach(f => {
+    rows += `<tr class="warn-row"><td>${f.name}</td><td>בתהליך</td><td>${f.note}</td></tr>`;
+  });
+  document.getElementById('printTable').innerHTML = rows;
+  window.print();
+}
+
+// tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.view).classList.add('active');
+  });
+});
+
+// add food
+document.getElementById('addFoodBtn').addEventListener('click', () => {
+  const planView = document.getElementById('plan');
+  document.querySelector('.tab[data-view="plan"]').click();
+  const formHTML = `
+    <div class="add-card" id="addForm">
+      <input type="text" id="newFoodName" placeholder="שם המזון (לדוגמה: אפרסק מבושל)">
+      <label><input type="checkbox" id="newFoodAllergen"> זהו אלרגן עיקרי</label>
+      <button onclick="submitNewFood()">הוסף לרשימה</button>
+    </div>
+  `;
+  planView.insertAdjacentHTML('afterbegin', formHTML);
+  document.getElementById('newFoodName').focus();
+});
+
+function submitNewFood(){
+  const name = document.getElementById('newFoodName').value.trim();
+  const allergen = document.getElementById('newFoodAllergen').checked;
+  if(!name) return;
+  addFood(name, allergen);
+}
+
+renderAll();
+</script>
+</body>
+</html>
