@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>אליאס — משחק הניחושים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#150F2E;
+    --bg-alt:#1F1745;
+    --card:#251C4F;
+    --coral:#FF5D73;
+    --gold:#FFC857;
+    --teal:#2EC4B6;
+    --violet:#9B5DE5;
+    --text:#F5F3FF;
+    --muted:#9B93C9;
+    --ring-track:#2E2361;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,93,115,0.12), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(46,196,182,0.14), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Heebo', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    overflow-x:hidden;
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+  }
+  .screen{
+    display:none;
+    animation:fadeIn .35s ease;
+  }
+  .screen.active{display:block;}
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* ---------- Header / brand ---------- */
+  .brand{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .brand-mark{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size:34px;
+    letter-spacing:-0.5px;
+  }
+  .brand-mark svg{width:32px;height:32px;flex-shrink:0;}
+  .brand-sub{
+    color:var(--muted);
+    font-size:14px;
+    margin-top:4px;
+    letter-spacing:0.5px;
+  }
+
+  /* ---------- Cards / sections ---------- */
+  .panel{
+    background:var(--card);
+    border-radius:22px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    border:1px solid rgba(255,255,255,0.04);
+  }
+  .panel h2{
+    font-family:'Rubik', sans-serif;
+    font-size:15px;
+    font-weight:700;
+    margin:0 0 12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  /* ---------- Team setup ---------- */
+  .team-count-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .count-btn{
+    flex:1;
+    padding:10px 0;
+    border-radius:12px;
+    border:none;
+    background:var(--bg-alt);
+    color:var(--text);
+    font-family:'Rubik',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .count-btn.selected{
+    background:var(--violet);
+    box-shadow:0 4px 14px rgba(155,93,229,0.4);
+  }
+  .team-input-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .team-dot{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .team-input-row input{
+    flex:1;
+    background:var(--bg-alt);
+    border:1px solid transparent;
+    border-radius:12px;
+    padding:12px 14px;
+    color:var(--text);
+    font-family:'Heebo', sans-serif;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .team-input-row input:focus{border-color:var(--violet);}
+
+  /* ---------- Option chips ---------- */
+  .chip-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    padding:9px 14px;
+    border-radius:100px;
+    background:var(--bg-alt);
+    color:var(--muted);
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+    border:1px solid transparent;
+    transition:all .15s ease;
+  }
+  .chip.selected{
+    background:rgba(255,200,87,0.15);
+    color:var(--gold);
+    border-color:var(--gold);
+  }
+  .row-btns{
+    display:flex;
+    gap:8px;
+  }
+  .row-btns .chip{flex:1; text-align:center;}
+
+  .field-label{
+    font-size:13px;
+    color:var(--muted);
+    margin:14px 0 8px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(135deg, var(--coral), #FF8A65);
+    color:#1B0F1F;
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(255,93,115,0.35);
+    transition:transform .12s ease;
+  }
+  .btn-primary:active{transform:scale(0.97);}
+  .btn-secondary{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:16px;
+    background:var(--bg-alt);
+    color:var(--text);
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:10px;
+  }
+
+  /* ---------- Scoreboard (persistent) ---------- */
+  .scoreboard{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+    overflow-x:auto;
+  }
+  .score-pill{
+    flex:1;
+    min-width:0;
+    background:var(--bg-alt);
+    border-radius:14px;
+    padding:10px 8px;
+    text-align:center;
+    border:2px solid transparent;
+    transition:all .2s ease;
+  }
+  .score-pill.current{
+    border-color:var(--gold);
+    box-shadow:0 0 16px rgba(255,200,87,0.35);
+  }
+  .score-pill .name{
+    font-size:11px;
+    color:var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .score-pill .score{
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size:20px;
+  }
+
+  /* ---------- Turn intro ---------- */
+  .turn-intro{
+    text-align:center;
+    padding:30px 10px;
+  }
+  .turn-intro .whos-turn{
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .turn-intro .team-name-big{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size:32px;
+    margin-bottom:20px;
+  }
+  .turn-intro p.hint{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:26px;
+    line-height:1.6;
+  }
+
+  /* ---------- Gameplay screen ---------- */
+  .timer-wrap{
+    position:relative;
+    width:150px;
+    height:150px;
+    margin:0 auto 22px;
+  }
+  .timer-wrap svg{
+    width:100%;
+    height:100%;
+    transform:rotate(-90deg);
+  }
+  .timer-wrap circle{
+    fill:none;
+    stroke-width:10;
+    stroke-linecap:round;
+  }
+  .timer-track{stroke:var(--ring-track);}
+  .timer-progress{
+    stroke:var(--gold);
+    transition:stroke .3s ease;
+  }
+  .timer-progress.low{stroke:var(--coral);}
+  .timer-num{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size:42px;
+  }
+  .timer-num.low{color:var(--coral); animation:pulse .5s ease infinite;}
+  @keyframes pulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+  }
+
+  .word-card{
+    background:linear-gradient(160deg, var(--violet), #6E3AC9);
+    border-radius:24px;
+    padding:38px 20px;
+    text-align:center;
+    margin-bottom:18px;
+    min-height:120px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 14px 34px rgba(155,93,229,0.35);
+  }
+  .word-card .word{
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size:30px;
+    line-height:1.3;
+  }
+  .word-card.flip{animation:flip .35s ease;}
+  @keyframes flip{
+    0%{transform:rotateX(0deg) scale(1);}
+    50%{transform:rotateX(90deg) scale(0.9);}
+    100%{transform:rotateX(0deg) scale(1);}
+  }
+
+  .action-row{
+    display:flex;
+    gap:12px;
+  }
+  .action-btn{
+    flex:1;
+    padding:20px 10px;
+    border:none;
+    border-radius:18px;
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    transition:transform .1s ease;
+  }
+  .action-btn:active{transform:scale(0.96);}
+  .action-btn.skip{
+    background:var(--bg-alt);
+    color:var(--muted);
+  }
+  .action-btn.correct{
+    background:linear-gradient(135deg, var(--teal), #1FA99C);
+    color:#06231F;
+    box-shadow:0 8px 20px rgba(46,196,182,0.35);
+  }
+  .action-btn .icon{font-size:24px;}
+
+  /* ---------- Turn summary ---------- */
+  .summary{
+    text-align:center;
+    padding:20px 10px;
+  }
+  .summary .big-score{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size:56px;
+    margin:6px 0 4px;
+  }
+  .summary .label{color:var(--muted); font-size:14px;}
+
+  /* ---------- Winner ---------- */
+  .winner-wrap{
+    text-align:center;
+    padding:20px 10px;
+  }
+  .trophy{font-size:64px; margin-bottom:6px;}
+  .winner-name{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size:28px;
+    margin-bottom:22px;
+  }
+  .final-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    background:var(--bg-alt);
+    border-radius:12px;
+    margin-bottom:8px;
+  }
+  .final-row .fname{display:flex; align-items:center; gap:10px; font-weight:500;}
+  .final-row .fscore{font-family:'Rubik',sans-serif; font-weight:800; font-size:18px;}
+
+  ::-webkit-scrollbar{height:4px;}
+  ::-webkit-scrollbar-thumb{background:var(--muted); border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M6 2H18M6 22H18M7 2C7 6 9 8 12 9.5C9 11 7 13 7 17C7 19.5 9.2 21.2 12 22C14.8 21.2 17 19.5 17 17C17 13 15 11 12 9.5C15 8 17 6 17 2" stroke="#FFC857" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+      אליאס
+    </div>
+    <div class="brand-sub">משחק הניחושים המשפחתי</div>
+  </div>
+
+  <!-- ============ SETUP SCREEN ============ -->
+  <div class="screen active" id="screen-setup">
+
+    <div class="panel">
+      <h2>כמה קבוצות?</h2>
+      <div class="team-count-row" id="teamCountRow"></div>
+      <div id="teamInputs"></div>
+    </div>
+
+    <div class="panel">
+      <h2>קטגוריות מילים</h2>
+      <div class="chip-grid" id="categoryChips"></div>
+    </div>
+
+    <div class="panel">
+      <h2>זמן לתור</h2>
+      <div class="row-btns" id="timeChips"></div>
+
+      <div class="field-label">ניצחון בהגעה לניקוד</div>
+      <div class="row-btns" id="scoreChips"></div>
+    </div>
+
+    <button class="btn-primary" id="btnStartGame">בואו נתחיל!</button>
+  </div>
+
+  <!-- ============ TURN INTRO SCREEN ============ -->
+  <div class="screen" id="screen-turnintro">
+    <div class="scoreboard" id="scoreboardIntro"></div>
+    <div class="panel turn-intro">
+      <div class="whos-turn">התור של</div>
+      <div class="team-name-big" id="introTeamName">קבוצה 1</div>
+      <p class="hint">מסבירים למי? שלא יגיד את המילה, שם משפחה שלה, או מילים שנשמעות כמוה. אסור לתרגם, אסור לחרוז!</p>
+      <button class="btn-primary" id="btnStartTurn">התחילו תור ⏳</button>
+    </div>
+  </div>
+
+  <!-- ============ GAMEPLAY SCREEN ============ -->
+  <div class="screen" id="screen-play">
+    <div class="scoreboard" id="scoreboardPlay"></div>
+
+    <div class="timer-wrap">
+      <svg viewBox="0 0 120 120">
+        <circle class="timer-track" cx="60" cy="60" r="52"></circle>
+        <circle class="timer-progress" id="timerRing" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="timer-num" id="timerNum">60</div>
+    </div>
+
+    <div class="word-card" id="wordCard">
+      <div class="word" id="currentWord">מילה</div>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn skip" id="btnSkip">
+        <span class="icon">⏭</span>
+        <span>דילוג</span>
+      </button>
+      <button class="action-btn correct" id="btnCorrect">
+        <span class="icon">✓</span>
+        <span>ניחשו!</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ TURN SUMMARY SCREEN ============ -->
+  <div class="screen" id="screen-summary">
+    <div class="panel summary">
+      <div class="label">הזמן נגמר!</div>
+      <div class="big-score" id="summaryScore">+0</div>
+      <div class="label" id="summaryTeam">קבוצה 1 ניחשו נכון</div>
+    </div>
+    <button class="btn-primary" id="btnNextTurn">לתור הבא</button>
+  </div>
+
+  <!-- ============ WINNER SCREEN ============ -->
+  <div class="screen" id="screen-winner">
+    <div class="panel winner-wrap">
+      <div class="trophy">🏆</div>
+      <div class="winner-name" id="winnerName">קבוצה 1 ניצחו!</div>
+      <div id="finalScores"></div>
+    </div>
+    <button class="btn-primary" id="btnPlayAgain">משחק חדש</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   WORD BANKS
+--------------------------------------------------------- */
+const WORD_BANKS = {
+  general: ["כיסא","שולחן","מחשב","טלפון","ספר","עיפרון","מטרייה","אופניים","מכונית","שעון","משקפיים","כובע","מפתח","נעל","תיק","מראה","נר","כרית","שמיכה","מנורה","חלון","דלת","מקרר","תנור","כיור","מברשת שיניים","סבון","מגבת","גלגל","עגלה","רכבת","מטוס","ספינה","גשר","הר","נהר","ים","יער","מדבר","שלג","גשם","רוח","שמש","ירח","כוכב","ענן","קשת","אש","מים","אדמה"],
+  animals: ["כלב","חתול","אריה","נמר","פיל","ג'ירפה","קוף","דוב","זאב","שועל","ארנב","צב","נחש","תנין","דולפין","לוויתן","כריש","דג","נשר","ינשוף","תוכי","עכבר","סוס","פרה","כבשה","עז","תרנגול","ברווז","אווז","דבורה","פרפר","נמלה","עכביש","צפרדע","קנגורו"],
+  food: ["פיצה","המבורגר","פסטה","אורז","לחם","גבינה","ביצה","עגבניה","מלפפון","גזר","תפוח","בננה","תות","ענבים","אבטיח","שוקולד","גלידה","עוגה","עוגיה","מרק","סלט","פלאפל","חומוס","שווארמה","סושי","בורקס","שניצל","קורנפלקס","דבש","לימון"],
+  movies: ["הארי פוטר","שר הטבעות","מלך האריות","שרק","טיטניק","ספיידרמן","באטמן","סופרמן","המשחק המרתק","חתונה ממותגת","היפים והאמיצים","עולם היורה","מלחמת הכוכבים","המכשפה מאוז","סינדרלה","פינוקיו","המפלצות בע\"מ","עולם הפלאים","האוסקר","הזמר הנודד"],
+  kids: ["שמש","ירח","כוכב","בית","כדור","בובה","רכבת","אוטו","פרח","עץ","ענן","גשם","קשת","דג","ציפור","פרפר","חתול","כלב","דובי","גלידה","עוגה","בלון","מתנה","יום הולדת","גן ילדים","נדנדה","חול","ים","מגלשה"],
+  sports: ["כדורגל","כדורסל","טניס","שחייה","ריצה","אולימפיאדה","מדליה","קבוצה","שוער","שופט","מגרש","אצטדיון","ניצחון","הפסד","תיקו","אלוף","גביע","אימון","קפיצה","זריקה"]
+};
+
+const CATEGORY_LABELS = {
+  general:"כללי", animals:"בעלי חיים", food:"אוכל", movies:"סרטים וסדרות", kids:"לילדים", sports:"ספורט"
+};
+
+const TEAM_COLORS = ["#FF5D73","#2EC4B6","#FFC857","#9B5DE5"];
+
+/* ---------------------------------------------------------
+   STATE
+--------------------------------------------------------- */
+let state = {
+  teamCount: 2,
+  teamNames: [],
+  categories: ["general","animals","food"],
+  roundSeconds: 60,
+  targetScore: 30,
+  teams: [],
+  currentTeamIndex: 0,
+  deck: [],
+  skippedThisTurn: [],
+  currentWord: "",
+  timeLeft: 60,
+  timerId: null,
+  turnScore: 0
+};
+
+/* ---------------------------------------------------------
+   SETUP SCREEN BUILD
+--------------------------------------------------------- */
+const teamCountRow = document.getElementById('teamCountRow');
+const teamInputsWrap = document.getElementById('teamInputs');
+const categoryChipsWrap = document.getElementById('categoryChips');
+const timeChipsWrap = document.getElementById('timeChips');
+const scoreChipsWrap = document.getElementById('scoreChips');
+
+function renderTeamCountButtons(){
+  teamCountRow.innerHTML = '';
+  [2,3,4].forEach(n=>{
+    const b = document.createElement('button');
+    b.className = 'count-btn' + (state.teamCount===n ? ' selected':'');
+    b.textContent = n + ' קבוצות';
+    b.onclick = ()=>{ state.teamCount = n; renderTeamCountButtons(); renderTeamInputs(); };
+    teamCountRow.appendChild(b);
+  });
+}
+
+function renderTeamInputs(){
+  teamInputsWrap.innerHTML = '';
+  for(let i=0;i<state.teamCount;i++){
+    if(!state.teamNames[i]) state.teamNames[i] = 'קבוצה ' + (i+1);
+    const row = document.createElement('div');
+    row.className = 'team-input-row';
+    const dot = document.createElement('div');
+    dot.className = 'team-dot';
+    dot.style.background = TEAM_COLORS[i];
+    const input = document.createElement('input');
+    input.value = state.teamNames[i];
+    input.maxLength = 16;
+    input.oninput = (e)=>{ state.teamNames[i] = e.target.value || ('קבוצה ' + (i+1)); };
+    row.appendChild(dot);
+    row.appendChild(input);
+    teamInputsWrap.appendChild(row);
+  }
+}
+
+function renderCategoryChips(){
+  categoryChipsWrap.innerHTML = '';
+  Object.keys(CATEGORY_LABELS).forEach(key=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (state.categories.includes(key) ? ' selected':'');
+    chip.textContent = CATEGORY_LABELS[key];
+    chip.onclick = ()=>{
+      if(state.categories.includes(key)){
+        if(state.categories.length>1) state.categories = state.categories.filter(c=>c!==key);
+      } else {
+        state.categories.push(key);
+      }
+      renderCategoryChips();
+    };
+    categoryChipsWrap.appendChild(chip);
+  });
+}
+
+function renderTimeChips(){
+  timeChipsWrap.innerHTML = '';
+  [30,60,90].forEach(sec=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (state.roundSeconds===sec ? ' selected':'');
+    chip.textContent = sec + ' שנ׳';
+    chip.onclick = ()=>{ state.roundSeconds = sec; renderTimeChips(); };
+    timeChipsWrap.appendChild(chip);
+  });
+}
+
+function renderScoreChips(){
+  scoreChipsWrap.innerHTML = '';
+  [20,30,50].forEach(sc=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (state.targetScore===sc ? ' selected':'');
+    chip.textContent = sc + ' נק׳';
+    chip.onclick = ()=>{ state.targetScore = sc; renderScoreChips(); };
+    scoreChipsWrap.appendChild(chip);
+  });
+}
+
+renderTeamCountButtons();
+renderTeamInputs();
+renderCategoryChips();
+renderTimeChips();
+renderScoreChips();
+
+/* ---------------------------------------------------------
+   SCREEN NAVIGATION
+--------------------------------------------------------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ---------------------------------------------------------
+   SCOREBOARD RENDER
+--------------------------------------------------------- */
+function renderScoreboard(targetElId){
+  const el = document.getElementById(targetElId);
+  el.innerHTML = '';
+  state.teams.forEach((team, idx)=>{
+    const pill = document.createElement('div');
+    pill.className = 'score-pill' + (idx===state.currentTeamIndex ? ' current':'');
+    pill.innerHTML = `<div class="name" style="color:${team.color}">${team.name}</div><div class="score">${team.score}</div>`;
+    el.appendChild(pill);
+  });
+}
+
+/* ---------------------------------------------------------
+   DECK BUILDING
+--------------------------------------------------------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildDeck(){
+  let words = [];
+  state.categories.forEach(cat=>{ words = words.concat(WORD_BANKS[cat]); });
+  state.deck = shuffle(words);
+}
+
+function nextWord(){
+  if(state.deck.length === 0){
+    // reshuffle skipped words from this session back in
+    if(state.skippedThisTurn.length > 0){
+      state.deck = shuffle(state.skippedThisTurn);
+      state.skippedThisTurn = [];
+    } else {
+      // exhausted entirely, rebuild fresh
+      buildDeck();
+    }
+  }
+  return state.deck.pop();
+}
+
+/* ---------------------------------------------------------
+   GAME START
+--------------------------------------------------------- */
+document.getElementById('btnStartGame').onclick = ()=>{
+  state.teams = state.teamNames.slice(0, state.teamCount).map((name, i)=>({
+    name, color: TEAM_COLORS[i], score: 0
+  }));
+  state.currentTeamIndex = 0;
+  buildDeck();
+  goToTurnIntro();
+};
+
+function goToTurnIntro(){
+  document.getElementById('introTeamName').textContent = state.teams[state.currentTeamIndex].name;
+  document.getElementById('introTeamName').style.color = state.teams[state.currentTeamIndex].color;
+  renderScoreboard('scoreboardIntro');
+  showScreen('screen-turnintro');
+}
+
+document.getElementById('btnStartTurn').onclick = ()=>{
+  startTurn();
+};
+
+/* ---------------------------------------------------------
+   TURN / TIMER LOGIC
+--------------------------------------------------------- */
+const wordCardEl = document.getElementById('wordCard');
+const currentWordEl = document.getElementById('currentWord');
+const timerNumEl = document.getElementById('timerNum');
+const timerRingEl = document.getElementById('timerRing');
+const RING_CIRC = 2 * Math.PI * 52;
+timerRingEl.style.strokeDasharray = RING_CIRC;
+
+function startTurn(){
+  state.turnScore = 0;
+  state.skippedThisTurn = [];
+  state.timeLeft = state.roundSeconds;
+  renderScoreboard('scoreboardPlay');
+  showScreen('screen-play');
+  drawNextWord(false);
+  updateTimerDisplay();
+
+  state.timerId = setInterval(()=>{
+    state.timeLeft -= 0.1;
+    if(state.timeLeft <= 0){
+      state.timeLeft = 0;
+      updateTimerDisplay();
+      clearInterval(state.timerId);
+      endTurn();
+    } else {
+      updateTimerDisplay();
+    }
+  }, 100);
+}
+
+function updateTimerDisplay(){
+  const secs = Math.ceil(state.timeLeft);
+  timerNumEl.textContent = secs;
+  const pct = state.timeLeft / state.roundSeconds;
+  timerRingEl.style.strokeDashoffset = RING_CIRC * (1 - pct);
+  const low = state.timeLeft <= 10;
+  timerRingEl.classList.toggle('low', low);
+  timerNumEl.classList.toggle('low', low);
+}
+
+function drawNextWord(animate=true){
+  state.currentWord = nextWord();
+  currentWordEl.textContent = state.currentWord;
+  if(animate){
+    wordCardEl.classList.remove('flip');
+    void wordCardEl.offsetWidth; // restart animation
+    wordCardEl.classList.add('flip');
+  }
+}
+
+document.getElementById('btnCorrect').onclick = ()=>{
+  if(state.timeLeft <= 0) return;
+  state.turnScore += 1;
+  drawNextWord(true);
+};
+
+document.getElementById('btnSkip').onclick = ()=>{
+  if(state.timeLeft <= 0) return;
+  state.skippedThisTurn.push(state.currentWord);
+  drawNextWord(true);
+};
+
+function endTurn(){
+  const team = state.teams[state.currentTeamIndex];
+  team.score += state.turnScore;
+
+  document.getElementById('summaryScore').textContent = '+' + state.turnScore;
+  document.getElementById('summaryScore').style.color = team.color;
+  document.getElementById('summaryTeam').textContent = team.name + ' ניחשו נכון';
+  showScreen('screen-summary');
+}
+
+document.getElementById('btnNextTurn').onclick = ()=>{
+  const team = state.teams[state.currentTeamIndex];
+  if(team.score >= state.targetScore){
+    showWinner();
+    return;
+  }
+  state.currentTeamIndex = (state.currentTeamIndex + 1) % state.teams.length;
+  goToTurnIntro();
+};
+
+/* ---------------------------------------------------------
+   WINNER SCREEN
+--------------------------------------------------------- */
+function showWinner(){
+  const sorted = state.teams.slice().sort((a,b)=>b.score - a.score);
+  const winner = sorted[0];
+  document.getElementById('winnerName').textContent = winner.name + ' ניצחו! 🎉';
+  document.getElementById('winnerName').style.color = winner.color;
+
+  const finalScoresEl = document.getElementById('finalScores');
+  finalScoresEl.innerHTML = '';
+  sorted.forEach(team=>{
+    const row = document.createElement('div');
+    row.className = 'final-row';
+    row.innerHTML = `<div class="fname"><span style="width:10px;height:10px;border-radius:50%;background:${team.color};display:inline-block;"></span>${team.name}</div><div class="fscore">${team.score}</div>`;
+    finalScoresEl.appendChild(row);
+  });
+
+  showScreen('screen-winner');
+}
+
+document.getElementById('btnPlayAgain').onclick = ()=>{
+  state.teams.forEach(t=> t.score = 0);
+  state.currentTeamIndex = 0;
+  buildDeck();
+  showScreen('screen-setup');
+};
+</script>
+</body>
+</html>

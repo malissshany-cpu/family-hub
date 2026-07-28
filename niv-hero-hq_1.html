@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niv's Hero HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Bangers&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14162E;
+    --navy-2:#1E2148;
+    --cream:#FFF6E9;
+    --gold:#FFC533;
+    --red:#E4402A;
+    --teal:#16C2A3;
+    --purple:#8E44AD;
+    --ink:#14162E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Baloo 2', sans-serif;
+    color:var(--ink);
+    background-color:var(--navy);
+    background-image:
+      radial-gradient(circle, var(--navy-2) 1.6px, transparent 1.6px);
+    background-size:18px 18px;
+    min-height:100vh;
+    padding:20px 14px 60px;
+  }
+  .wrap{max-width:480px;margin:0 auto;}
+  h1,h2,h3{font-family:'Bangers', cursive; letter-spacing:1px; margin:0;}
+  .title-banner{
+    text-align:center;
+    color:var(--gold);
+    font-size:34px;
+    text-shadow: 3px 3px 0 var(--red), 0 0 18px rgba(255,197,51,0.4);
+    margin-bottom:18px;
+    line-height:1.1;
+  }
+  .panel{
+    background:var(--cream);
+    border-radius:22px;
+    border:4px solid var(--ink);
+    box-shadow:7px 7px 0 var(--ink);
+    padding:18px;
+    margin-bottom:18px;
+  }
+  .hero-card{display:flex;align-items:center;gap:14px;}
+  .avatar-circle{
+    width:70px;height:70px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:36px; border:4px solid var(--ink); flex-shrink:0;
+  }
+  .hero-info{flex:1;}
+  .hero-name{font-family:'Bangers'; font-size:24px; letter-spacing:0.5px;}
+  .hero-rank{font-size:13px; font-weight:700; opacity:0.75; margin-top:-2px;}
+  .streak-badge{
+    display:flex;flex-direction:column;align-items:center;
+    background:var(--navy); color:var(--gold); border-radius:14px;
+    padding:8px 12px; font-family:'Bangers'; border:3px solid var(--ink);
+  }
+  .streak-badge .num{font-size:22px;line-height:1;}
+  .streak-badge .lbl{font-size:9px;font-family:'Baloo 2';font-weight:700;letter-spacing:1px;}
+
+  .eyebrow{
+    font-size:12px;font-weight:800;letter-spacing:2px;
+    color:var(--red); text-transform:uppercase; margin-bottom:6px;
+  }
+  .mission-food{text-align:center; padding:6px 0 4px; position:relative; min-height:210px; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .scratch-canvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    border-radius:16px; cursor:pointer; touch-action:none;
+    box-shadow:0 0 0 3px var(--ink) inset;
+  }
+  .mission-emoji{font-size:70px; display:block; filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.15));}
+  .mission-name{font-family:'Bangers'; font-size:26px; margin-top:4px;}
+  .step-label{text-align:center;font-weight:800;font-size:14px;margin:10px 0 8px;}
+
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .btn{
+    font-family:'Baloo 2'; font-weight:800; font-size:15px;
+    border:3px solid var(--ink); border-radius:14px;
+    padding:12px 14px; cursor:pointer; background:var(--gold); color:var(--ink);
+    box-shadow:3px 3px 0 var(--ink); transition:transform .08s ease;
+    flex:1; min-width:100px;
+  }
+  .btn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+  .btn.teal{background:var(--teal); color:#fff;}
+  .btn.red{background:var(--red); color:#fff;}
+  .btn.purple{background:var(--purple); color:#fff;}
+  .btn.ghost{background:var(--cream); box-shadow:none; border-style:dashed;}
+  .btn.small{font-size:12px; padding:8px 10px; flex:none;}
+
+  .skip-link{
+    display:block; text-align:center; margin-top:10px; font-size:13px;
+    font-weight:700; color:var(--navy-2); text-decoration:underline; cursor:pointer;
+  }
+
+  .done-msg{text-align:center; font-weight:800; padding:10px 0;}
+  .done-msg .big{font-family:'Bangers'; font-size:24px; color:var(--teal); display:block;}
+
+  .sticker-wall{display:grid; grid-template-columns:repeat(6,1fr); gap:8px;}
+  .sticker{
+    aspect-ratio:1; border-radius:50%; background:var(--navy);
+    border:3px solid var(--ink); display:flex; align-items:center;
+    justify-content:center; font-size:20px; position:relative;
+  }
+  .sticker.empty{background:transparent; border-style:dashed; opacity:0.35;}
+  .sticker .reaction{
+    position:absolute; bottom:-4px; right:-4px; font-size:12px;
+    background:var(--cream); border-radius:50%; border:2px solid var(--ink); padding:1px;
+  }
+
+  .shields-row{display:flex; gap:10px; justify-content:space-between; margin-top:4px;}
+  .shield{text-align:center; flex:1; opacity:0.3; font-size:26px;}
+  .shield.unlocked{opacity:1;}
+  .shield .s-lbl{font-size:9px; font-weight:800; margin-top:2px;}
+
+  .setup-option{
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:12px 0 4px;
+  }
+  .opt-circle{
+    width:56px;height:56px;border-radius:50%;
+    border:3px solid var(--ink); font-size:28px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    background:var(--cream);
+  }
+  .opt-circle.selected{outline:4px solid var(--gold); transform:scale(1.08);}
+  input[type=text]{
+    width:100%; font-family:'Baloo 2'; font-weight:700; font-size:16px;
+    padding:10px 12px; border-radius:12px; border:3px solid var(--ink);
+    margin-top:6px;
+  }
+
+  .burst{
+    position:fixed; top:40%; left:50%; transform:translate(-50%,-50%) scale(0);
+    font-family:'Bangers'; font-size:52px; color:var(--gold);
+    text-shadow:4px 4px 0 var(--red); pointer-events:none; z-index:50;
+    animation:pow 0.7s ease forwards;
+  }
+  @keyframes pow{
+    0%{transform:translate(-50%,-50%) scale(0) rotate(-8deg); opacity:0;}
+    35%{transform:translate(-50%,-50%) scale(1.15) rotate(4deg); opacity:1;}
+    70%{transform:translate(-50%,-50%) scale(1) rotate(0deg); opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(0.9) rotate(0deg); opacity:0;}
+  }
+
+  .parent-toggle{
+    text-align:center; font-size:13px; font-weight:700; color:var(--cream);
+    cursor:pointer; margin-top:6px; opacity:0.85;
+  }
+  .parent-panel p{font-size:13px; line-height:1.5; margin:6px 0;}
+  .parent-panel{display:none;}
+  .parent-panel.open{display:block;}
+  .hidden{display:none;}
+  .add-food-row{display:flex; gap:8px; margin-top:6px;}
+  .add-food-row input{flex:1;}
+  .upcoming-item{
+    display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700;
+    background:var(--cream); border:2px solid var(--ink); border-radius:10px; padding:6px 10px;
+  }
+  .upcoming-item .u-emoji{font-size:18px;}
+  .upcoming-item .u-tag{
+    margin-left:auto; font-size:9px; font-weight:800; letter-spacing:0.5px;
+    background:var(--navy); color:var(--gold); border-radius:6px; padding:2px 6px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title-banner" id="titleBanner">★ HERO HQ ★</div>
+
+  <!-- SETUP SCREEN -->
+  <div id="setupScreen" class="panel hidden">
+    <h2 style="text-align:center;font-size:22px;">Let's suit you up!</h2>
+    <p style="text-align:center;font-weight:700;font-size:14px;">What's your hero name?</p>
+    <input type="text" id="nameInput" placeholder="Niv" maxlength="16">
+
+    <p style="text-align:center;font-weight:700;font-size:14px;margin-top:14px;">Pick your hero</p>
+    <div class="setup-option" id="avatarOptions"></div>
+
+    <p style="text-align:center;font-weight:700;font-size:14px;margin-top:14px;">Pick your cape color</p>
+    <div class="setup-option" id="capeOptions"></div>
+
+    <div style="margin-top:16px;">
+      <button class="btn red" id="startBtn" style="width:100%;">Suit Up &amp; Start! 🦸</button>
+    </div>
+  </div>
+
+  <!-- HQ SCREEN -->
+  <div id="hqScreen" class="hidden">
+    <div class="panel hero-card">
+      <div class="avatar-circle" id="heroAvatarCircle"></div>
+      <div class="hero-info">
+        <div class="hero-name" id="heroNameDisplay"></div>
+        <div class="hero-rank" id="heroRankDisplay"></div>
+      </div>
+      <div class="streak-badge">
+        <div class="num" id="streakNum">0</div>
+        <div class="lbl">🔥 STREAK</div>
+      </div>
+    </div>
+
+    <div class="panel" id="missionPanel">
+      <div class="eyebrow">Today's Mission</div>
+      <div class="mission-food" id="missionFoodArea">
+        <span class="mission-emoji" id="missionEmoji">🥦</span>
+        <div class="mission-name" id="missionName">Broccoli Tree</div>
+        <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
+        <canvas id="dotsCanvas" class="scratch-canvas"></canvas>
+        <canvas id="jigsawCanvas" class="scratch-canvas"></canvas>
+      </div>
+
+      <div id="stepAction">
+        <div class="step-label">How brave do you feel today?</div>
+        <div class="btn-row">
+          <button class="btn" data-action="Sniffed it">Sniff it 👃</button>
+          <button class="btn teal" data-action="Touched it">Touch it ✋</button>
+          <button class="btn red" data-action="Tasted it">Taste it 👅</button>
+        </div>
+        <span class="skip-link" id="skipLink">Try a different mission instead</span>
+      </div>
+
+      <div id="stepReaction" class="hidden">
+        <div class="step-label">How was it?</div>
+        <div class="btn-row">
+          <button class="btn" data-reaction="😋">Loved it 😋</button>
+          <button class="btn teal" data-reaction="🙂">It was OK 🙂</button>
+          <button class="btn purple" data-reaction="😬">Not my power yet 😬</button>
+        </div>
+      </div>
+
+      <div id="stepDone" class="hidden done-msg">
+        <span class="big">Mission Complete! 🎉</span>
+        You earned a sticker just for trying — that's what makes a hero!
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn ghost small" id="anotherMissionBtn">Do a bonus mission</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Sticker Wall</div>
+      <div class="sticker-wall" id="stickerWall"></div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Hero Shields (streak)</div>
+      <div class="shields-row" id="shieldsRow"></div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Trying Badges (total tries)</div>
+      <div class="shields-row" id="tryBadgesRow"></div>
+    </div>
+
+    <div class="parent-toggle" id="parentToggle">👪 Parent corner</div>
+    <div class="panel parent-panel" id="parentPanel">
+      <h3 style="font-size:18px;">How this works</h3>
+      <p>Every mission counts as a win the moment your hero sniffs, touches, or tastes the food — no matter if they love it, shrug, or make an "ick" face. The goal right now is just building courage and curiosity, not clean plates.</p>
+      <p>Streaks track consecutive days played, not "liked" foods. If a streak breaks, it's totally fine — just start again, no guilt.</p>
+      <p style="font-weight:800;">Coming up next</p>
+      <div id="upcomingList" style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;"></div>
+
+      <p style="font-weight:800;">Add a custom mission food</p>
+      <div class="add-food-row">
+        <input type="text" id="customFoodName" placeholder="e.g. Sweet peas">
+        <input type="text" id="customFoodEmoji" placeholder="🌱" style="width:56px;text-align:center;">
+        <button class="btn small" id="addFoodBtn">Add</button>
+      </div>
+      <button class="btn ghost small" id="resetBtn" style="margin-top:14px;width:100%;">Reset all hero progress</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const AVATARS = ['🦸','🦸‍♀️','🦹','🥷'];
+const CAPE_COLORS = [
+  {name:'red', hex:'#E4402A'},
+  {name:'teal', hex:'#16C2A3'},
+  {name:'gold', hex:'#FFC533'},
+  {name:'purple', hex:'#8E44AD'}
+];
+const DEFAULT_MISSIONS = [
+  {id:1, food:'Broccoli Tree', emoji:'🥦'},
+  {id:2, food:'Carrot Sword', emoji:'🥕'},
+  {id:3, food:'Cherry Tomato Bombs', emoji:'🍅'},
+  {id:4, food:'Cucumber Shield', emoji:'🥒'},
+  {id:5, food:'Bell Pepper Rainbow', emoji:'🫑'},
+  {id:6, food:'Sweet Potato Power', emoji:'🍠'},
+  {id:7, food:'Avocado Armor', emoji:'🥑'},
+  {id:8, food:'Mystery Mushroom', emoji:'🍄'},
+  {id:9, food:'Spinach Muscles', emoji:'🥬'},
+  {id:10, food:'Corn Cob Rocket', emoji:'🌽'},
+  {id:11, food:'Orange Sunburst', emoji:'🍊'},
+  {id:12, food:'Kiwi Blaster', emoji:'🥝'},
+  {id:13, food:'Strawberry Gem', emoji:'🍓'},
+  {id:14, food:'Blueberry Boosters', emoji:'🫐'},
+  {id:15, food:'Banana Bat', emoji:'🍌'},
+  {id:16, food:'Apple Shield', emoji:'🍎'},
+  {id:17, food:'Grape Cluster', emoji:'🍇'},
+  {id:18, food:'Watermelon Wheel', emoji:'🍉'},
+  {id:19, food:'Whole Grain Toast', emoji:'🍞'},
+  {id:20, food:'Brown Rice Boulders', emoji:'🍚'},
+  {id:21, food:'Oatmeal Fuel', emoji:'🥣'},
+  {id:22, food:'Edamame Pods', emoji:'🫛'},
+  {id:23, food:'Cheese Cube Bricks', emoji:'🧀'},
+  {id:24, food:'Egg Power-Up', emoji:'🥚'},
+  {id:25, food:'Chicken Champion Bites', emoji:'🍗'}
+];
+const RANKS = [
+  {min:0, label:'Rookie Recruit'},
+  {min:3, label:'Junior Hero'},
+  {min:7, label:'Hero in Training'},
+  {min:15, label:'Super Hero'},
+  {min:25, label:'Ultra Hero Legend'}
+];
+const SHIELDS = [
+  {days:3, icon:'🛡️', label:'BRONZE'},
+  {days:7, icon:'🥈', label:'SILVER'},
+  {days:14, icon:'🥇', label:'GOLD'},
+  {days:30, icon:'💎', label:'DIAMOND'}
+];
+const TRY_BADGES = [
+  {tries:5, icon:'🥉', label:'5 TRIES'},
+  {tries:10, icon:'🥈', label:'10 TRIES'},
+  {tries:20, icon:'🥇', label:'20 TRIES'},
+  {tries:35, icon:'💎', label:'35 TRIES'}
+];
+const DOT_COUNT = 7;
+const PUZZLE_COLS = 3;
+const PUZZLE_ROWS = 2;
+const PUZZLE_TOP_PAD = 24;
+
+let state = null;
+let pendingAction = null;
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function yesterdayStr(){
+  const d = new Date();
+  d.setDate(d.getDate()-1);
+  return d.toISOString().slice(0,10);
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get('niv-hero-data', false);
+    if(res && res.value){ state = JSON.parse(res.value); }
+    else { state = null; }
+  }catch(e){ state = null; }
+}
+
+async function saveState(){
+  try{
+    const result = await window.storage.set('niv-hero-data', JSON.stringify(state), false);
+    if(!result){ console.error('Save failed: storage returned no result'); }
+  }catch(e){ console.error('Save failed', e); }
+}
+
+function defaultState(name, avatar, cape){
+  return {
+    name, avatar, cape,
+    streak:0,
+    lastPlayDate:null,
+    totalTries:0,
+    missionPointer:0,
+    stickers:[],
+    customFoods:[]
+  };
+}
+
+function getMissionList(){
+  return DEFAULT_MISSIONS.concat(state.customFoods || []);
+}
+
+function getCurrentMission(){
+  const list = getMissionList();
+  const idx = ((state.missionPointer % list.length) + list.length) % list.length;
+  return list[idx];
+}
+
+function getRank(tries){
+  let label = RANKS[0].label;
+  for(const r of RANKS){ if(tries >= r.min) label = r.label; }
+  return label;
+}
+
+function renderSetup(){
+  document.getElementById('setupScreen').classList.remove('hidden');
+  document.getElementById('hqScreen').classList.add('hidden');
+
+  const avatarBox = document.getElementById('avatarOptions');
+  avatarBox.innerHTML='';
+  let selectedAvatar = AVATARS[0];
+  AVATARS.forEach(a=>{
+    const el = document.createElement('div');
+    el.className='opt-circle' + (a===selectedAvatar?' selected':'');
+    el.textContent=a;
+    el.onclick=()=>{
+      [...avatarBox.children].forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedAvatar=a;
+    };
+    avatarBox.appendChild(el);
+  });
+  avatarBox.children[0].classList.add('selected');
+
+  const capeBox = document.getElementById('capeOptions');
+  capeBox.innerHTML='';
+  let selectedCape = CAPE_COLORS[0].hex;
+  CAPE_COLORS.forEach((c,i)=>{
+    const el = document.createElement('div');
+    el.className='opt-circle';
+    el.style.background=c.hex;
+    if(i===0) el.classList.add('selected');
+    el.onclick=()=>{
+      [...capeBox.children].forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedCape=c.hex;
+    };
+    capeBox.appendChild(el);
+  });
+
+  document.getElementById('startBtn').onclick = async ()=>{
+    const nameVal = document.getElementById('nameInput').value.trim() || 'Niv';
+    state = defaultState(nameVal, selectedAvatar, selectedCape);
+    await saveState();
+    renderHQ();
+  };
+}
+
+function renderStickerWall(){
+  const wall = document.getElementById('stickerWall');
+  wall.innerHTML='';
+  const totalSlots = Math.max(24, state.stickers.length);
+  for(let i=0;i<totalSlots;i++){
+    const s = state.stickers[i];
+    const el = document.createElement('div');
+    if(s){
+      el.className='sticker';
+      el.innerHTML = s.emoji + '<span class="reaction">'+s.reaction+'</span>';
+    } else {
+      el.className='sticker empty';
+      el.textContent='☆';
+    }
+    wall.appendChild(el);
+  }
+}
+
+function renderShields(){
+  const row = document.getElementById('shieldsRow');
+  row.innerHTML='';
+  SHIELDS.forEach(sh=>{
+    const el = document.createElement('div');
+    el.className='shield' + (state.streak >= sh.days ? ' unlocked':'');
+    el.innerHTML = sh.icon + '<div class="s-lbl">'+sh.days+'-DAY<br>'+sh.label+'</div>';
+    row.appendChild(el);
+  });
+}
+
+function renderTryBadges(){
+  const row = document.getElementById('tryBadgesRow');
+  row.innerHTML='';
+  TRY_BADGES.forEach(b=>{
+    const el = document.createElement('div');
+    el.className='shield' + (state.totalTries >= b.tries ? ' unlocked':'');
+    el.innerHTML = b.icon + '<div class="s-lbl">'+b.label+'</div>';
+    row.appendChild(el);
+  });
+}
+
+function resetMissionSteps(){
+  document.getElementById('stepAction').classList.add('hidden');
+  document.getElementById('stepReaction').classList.add('hidden');
+  document.getElementById('stepDone').classList.add('hidden');
+}
+
+function showMissionStepAction(){
+  document.getElementById('stepAction').classList.remove('hidden');
+  document.getElementById('stepReaction').classList.add('hidden');
+  document.getElementById('stepDone').classList.add('hidden');
+}
+
+let scratchCtx = null;
+let scratching = false;
+let scratchDone = false;
+let scratchCheckCounter = 0;
+
+let currentGameType = 'scratch';
+let dotsCtx = null;
+let dots = [];
+let nextExpected = 1;
+let dotsDone = false;
+
+let jigsawCtx = null;
+let jigsawDone = false;
+let jigsawSourceCanvas = null;
+let jigsawSlots = [];
+let jigsawPieces = [];
+let jigsawDraggingIndex = -1;
+let jigsawDragOffset = {x:0, y:0};
+const JIGSAW_SNAP_THRESHOLD = 32;
+
+function initScratchCard(){
+  const canvas = document.getElementById('scratchCanvas');
+  const area = document.getElementById('missionFoodArea');
+  const rect = area.getBoundingClientRect();
+  canvas.width = Math.max(rect.width, 1);
+  canvas.height = Math.max(rect.height, 1);
+  canvas.style.transition = 'none';
+  canvas.style.opacity = '1';
+  canvas.style.pointerEvents = 'auto';
+
+  scratchCtx = canvas.getContext('2d');
+  scratchCtx.globalCompositeOperation = 'source-over';
+  const grad = scratchCtx.createLinearGradient(0,0,canvas.width,canvas.height);
+  grad.addColorStop(0, '#FFC533');
+  grad.addColorStop(1, '#E4402A');
+  scratchCtx.fillStyle = grad;
+  scratchCtx.fillRect(0,0,canvas.width,canvas.height);
+  scratchCtx.fillStyle = '#14162E';
+  scratchCtx.textAlign = 'center';
+  scratchCtx.font = "bold 15px 'Baloo 2', sans-serif";
+  scratchCtx.fillText('✨ Scratch here ✨', canvas.width/2, canvas.height/2 - 8);
+  scratchCtx.fillText('to reveal your mission!', canvas.width/2, canvas.height/2 + 14);
+
+  scratchDone = false;
+  scratchCheckCounter = 0;
+}
+
+function getScratchPos(e){
+  const canvas = document.getElementById('scratchCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function scratchAt(x, y){
+  if(!scratchCtx) return;
+  scratchCtx.globalCompositeOperation = 'destination-out';
+  scratchCtx.beginPath();
+  scratchCtx.arc(x, y, 18, 0, Math.PI*2);
+  scratchCtx.fill();
+}
+
+function checkScratchProgress(){
+  if(scratchDone || !scratchCtx) return;
+  scratchCheckCounter++;
+  if(scratchCheckCounter % 6 !== 0) return;
+  const canvas = document.getElementById('scratchCanvas');
+  const w = canvas.width, h = canvas.height;
+  if(w < 2 || h < 2) return;
+  const data = scratchCtx.getImageData(0,0,w,h).data;
+  let cleared = 0, total = 0;
+  for(let i=3; i<data.length; i += 4*25){
+    total++;
+    if(data[i] === 0) cleared++;
+  }
+  if(total > 0 && (cleared/total) > 0.45){
+    completeScratch();
+  }
+}
+
+function completeScratch(){
+  scratchDone = true;
+  const canvas = document.getElementById('scratchCanvas');
+  canvas.style.transition = 'opacity 0.4s ease';
+  canvas.style.opacity = '0';
+  canvas.style.pointerEvents = 'none';
+  burstPow('✨ REVEALED! ✨');
+  showMissionStepAction();
+}
+
+function generateDotPositions(w, h, n){
+  const pts = [];
+  const padding = 26;
+  const topPad = 36;
+  let attempts = 0;
+  while(pts.length < n && attempts < 500){
+    attempts++;
+    const x = padding + Math.random() * (w - padding*2);
+    const y = topPad + Math.random() * (h - topPad - padding);
+    let ok = true;
+    for(const p of pts){
+      if(Math.hypot(p.x - x, p.y - y) < 34){ ok = false; break; }
+    }
+    if(ok) pts.push({x, y});
+  }
+  while(pts.length < n){
+    const i = pts.length;
+    pts.push({ x: padding + (i * (w - 2*padding) / n), y: topPad + (h - topPad - padding) / 2 });
+  }
+  return pts;
+}
+
+function renderDotsCanvas(){
+  const canvas = document.getElementById('dotsCanvas');
+  if(!dotsCtx) return;
+  dotsCtx.fillStyle = '#1E2148';
+  dotsCtx.fillRect(0, 0, canvas.width, canvas.height);
+  dotsCtx.fillStyle = '#FFC533';
+  dotsCtx.textAlign = 'center';
+  dotsCtx.font = "bold 13px 'Baloo 2', sans-serif";
+  dotsCtx.fillText('🔗 Connect the dots 1 → ' + DOT_COUNT + '!', canvas.width/2, 18);
+
+  dotsCtx.strokeStyle = '#FFC533';
+  dotsCtx.lineWidth = 4;
+  for(let i=0; i<nextExpected-1; i++){
+    dotsCtx.beginPath();
+    dotsCtx.moveTo(dots[i].x, dots[i].y);
+    dotsCtx.lineTo(dots[i+1].x, dots[i+1].y);
+    dotsCtx.stroke();
+  }
+
+  dots.forEach((d,i)=>{
+    const connected = i < nextExpected - 1;
+    const isNext = i === nextExpected - 1;
+    dotsCtx.beginPath();
+    dotsCtx.arc(d.x, d.y, 16, 0, Math.PI*2);
+    dotsCtx.fillStyle = connected ? '#16C2A3' : '#FFF6E9';
+    dotsCtx.fill();
+    dotsCtx.lineWidth = isNext ? 4 : 2;
+    dotsCtx.strokeStyle = isNext ? '#E4402A' : '#14162E';
+    dotsCtx.stroke();
+    dotsCtx.fillStyle = '#14162E';
+    dotsCtx.font = "bold 13px 'Baloo 2', sans-serif";
+    dotsCtx.fillText(String(i+1), d.x, d.y + 4);
+  });
+}
+
+function initDotsGame(){
+  const canvas = document.getElementById('dotsCanvas');
+  const area = document.getElementById('missionFoodArea');
+  const rect = area.getBoundingClientRect();
+  canvas.width = Math.max(rect.width, 1);
+  canvas.height = Math.max(rect.height, 1);
+  canvas.style.transition = 'none';
+  canvas.style.opacity = '1';
+  canvas.style.pointerEvents = 'auto';
+
+  dotsCtx = canvas.getContext('2d');
+  dotsDone = false;
+  nextExpected = 1;
+  dots = generateDotPositions(canvas.width, canvas.height, DOT_COUNT);
+  renderDotsCanvas();
+}
+
+function completeDots(){
+  dotsDone = true;
+  const canvas = document.getElementById('dotsCanvas');
+  canvas.style.transition = 'opacity 0.4s ease';
+  canvas.style.opacity = '0';
+  canvas.style.pointerEvents = 'none';
+  burstPow('✨ REVEALED! ✨');
+  showMissionStepAction();
+}
+
+function processDotTap(x, y){
+  if(dotsDone) return;
+  let hitIndex = -1;
+  let bestDist = 24;
+  dots.forEach((d,i)=>{
+    const dist = Math.hypot(d.x - x, d.y - y);
+    if(dist < bestDist){ bestDist = dist; hitIndex = i; }
+  });
+  if(hitIndex === nextExpected - 1){
+    nextExpected++;
+    if(nextExpected > DOT_COUNT){ completeDots(); }
+    else { renderDotsCanvas(); }
+  }
+}
+
+function buildJigsawSource(gridW, gridH, emoji){
+  const src = document.createElement('canvas');
+  src.width = Math.max(gridW, 1);
+  src.height = Math.max(gridH, 1);
+  const ctx = src.getContext('2d');
+  ctx.fillStyle = '#FFF6E9';
+  ctx.fillRect(0, 0, src.width, src.height);
+  const size = Math.min(src.width, src.height) * 0.85;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = size + 'px sans-serif';
+  ctx.fillText(emoji, src.width/2, src.height/2 + size*0.05);
+  return src;
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function renderJigsawCanvas(){
+  const canvas = document.getElementById('jigsawCanvas');
+  if(!jigsawCtx) return;
+  const w = canvas.width, h = canvas.height;
+  jigsawCtx.fillStyle = '#1E2148';
+  jigsawCtx.fillRect(0, 0, w, h);
+  jigsawCtx.fillStyle = '#FFC533';
+  jigsawCtx.textAlign = 'center';
+  jigsawCtx.font = "bold 13px 'Baloo 2', sans-serif";
+  jigsawCtx.fillText('🧩 Drag the pieces into place!', w/2, 17);
+
+  jigsawSlots.forEach(slot=>{
+    jigsawCtx.save();
+    jigsawCtx.globalAlpha = 0.28;
+    jigsawCtx.drawImage(jigsawSourceCanvas, slot.x, slot.y - PUZZLE_TOP_PAD, slot.w, slot.h, slot.x, slot.y, slot.w, slot.h);
+    jigsawCtx.restore();
+    jigsawCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+    jigsawCtx.setLineDash([4,4]);
+    jigsawCtx.strokeRect(slot.x+2, slot.y+2, slot.w-4, slot.h-4);
+    jigsawCtx.setLineDash([]);
+  });
+
+  jigsawPieces.forEach(p=>{
+    const sCol = p.value % PUZZLE_COLS;
+    const sRow = Math.floor(p.value / PUZZLE_COLS);
+    const sx = sCol * p.w, sy = sRow * p.h;
+    jigsawCtx.drawImage(jigsawSourceCanvas, sx, sy, p.w, p.h, p.x, p.y, p.w, p.h);
+    jigsawCtx.strokeStyle = p.placed ? '#16C2A3' : '#14162E';
+    jigsawCtx.lineWidth = p.placed ? 3 : 2;
+    jigsawCtx.strokeRect(p.x+1, p.y+1, p.w-2, p.h-2);
+  });
+}
+
+function initJigsawGame(){
+  const canvas = document.getElementById('jigsawCanvas');
+  const area = document.getElementById('missionFoodArea');
+  const rect = area.getBoundingClientRect();
+  canvas.width = Math.max(rect.width, 1);
+  canvas.height = Math.max(rect.height, 1);
+  canvas.style.transition = 'none';
+  canvas.style.opacity = '1';
+  canvas.style.pointerEvents = 'auto';
+
+  jigsawCtx = canvas.getContext('2d');
+  jigsawDone = false;
+  jigsawDraggingIndex = -1;
+
+  const w = canvas.width, h = canvas.height;
+  const gridAreaW = w * 0.55;
+  const gridAreaH = h - PUZZLE_TOP_PAD;
+  const slotW = gridAreaW / PUZZLE_COLS;
+  const slotH = gridAreaH / PUZZLE_ROWS;
+
+  jigsawSlots = [];
+  for(let r=0; r<PUZZLE_ROWS; r++){
+    for(let c=0; c<PUZZLE_COLS; c++){
+      jigsawSlots.push({ index: r*PUZZLE_COLS+c, x: c*slotW, y: PUZZLE_TOP_PAD + r*slotH, w: slotW, h: slotH });
+    }
+  }
+
+  const m = getCurrentMission();
+  jigsawSourceCanvas = buildJigsawSource(gridAreaW, gridAreaH, m.emoji);
+
+  const trayX0 = gridAreaW + 6;
+  const trayX1 = Math.max(w - slotW - 6, trayX0 + 1);
+  const trayY0 = PUZZLE_TOP_PAD;
+  const trayY1 = Math.max(h - slotH, trayY0 + 1);
+
+  const order = [];
+  for(let i=0; i<PUZZLE_COLS*PUZZLE_ROWS; i++) order.push(i);
+  shuffleArray(order);
+
+  jigsawPieces = order.map(value=>({
+    value,
+    x: trayX0 + Math.random() * (trayX1 - trayX0),
+    y: trayY0 + Math.random() * (trayY1 - trayY0),
+    w: slotW,
+    h: slotH,
+    placed: false
+  }));
+
+  renderJigsawCanvas();
+}
+
+function completeJigsaw(){
+  jigsawDone = true;
+  const canvas = document.getElementById('jigsawCanvas');
+  canvas.style.transition = 'opacity 0.4s ease';
+  canvas.style.opacity = '0';
+  canvas.style.pointerEvents = 'none';
+  burstPow('✨ REVEALED! ✨');
+  showMissionStepAction();
+}
+
+function getJigsawLocalPos(e){
+  const canvas = document.getElementById('jigsawCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? (e.touches[0] || e.changedTouches[0]).clientX : e.clientX;
+  const clientY = e.touches ? (e.touches[0] || e.changedTouches[0]).clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function jigsawStartDrag(e){
+  if(jigsawDone) return;
+  const pos = getJigsawLocalPos(e);
+  for(let i=jigsawPieces.length-1; i>=0; i--){
+    const p = jigsawPieces[i];
+    if(p.placed) continue;
+    if(pos.x >= p.x && pos.x <= p.x+p.w && pos.y >= p.y && pos.y <= p.y+p.h){
+      jigsawDragOffset = { x: pos.x - p.x, y: pos.y - p.y };
+      jigsawPieces.splice(i, 1);
+      jigsawPieces.push(p);
+      jigsawDraggingIndex = jigsawPieces.length - 1;
+      renderJigsawCanvas();
+      return;
+    }
+  }
+}
+
+function jigsawDrag(e){
+  if(jigsawDraggingIndex < 0) return;
+  const pos = getJigsawLocalPos(e);
+  const p = jigsawPieces[jigsawDraggingIndex];
+  const canvas = document.getElementById('jigsawCanvas');
+  p.x = Math.min(Math.max(pos.x - jigsawDragOffset.x, 0), canvas.width - p.w);
+  p.y = Math.min(Math.max(pos.y - jigsawDragOffset.y, PUZZLE_TOP_PAD), canvas.height - p.h);
+  renderJigsawCanvas();
+}
+
+function jigsawEndDrag(){
+  if(jigsawDraggingIndex < 0) return;
+  const p = jigsawPieces[jigsawDraggingIndex];
+  const slot = jigsawSlots[p.value];
+  const pieceCenterX = p.x + p.w/2, pieceCenterY = p.y + p.h/2;
+  const slotCenterX = slot.x + slot.w/2, slotCenterY = slot.y + slot.h/2;
+  const dist = Math.hypot(pieceCenterX - slotCenterX, pieceCenterY - slotCenterY);
+  if(dist < JIGSAW_SNAP_THRESHOLD){
+    p.x = slot.x; p.y = slot.y; p.placed = true;
+  }
+  jigsawDraggingIndex = -1;
+  renderJigsawCanvas();
+  if(jigsawPieces.every(pp=>pp.placed)){
+    completeJigsaw();
+  }
+}
+
+function loadMissionIntoPanel(){
+  const m = getCurrentMission();
+  document.getElementById('missionEmoji').textContent = m.emoji;
+  document.getElementById('missionName').textContent = m.food;
+  resetMissionSteps();
+
+  const scratchCanvas = document.getElementById('scratchCanvas');
+  const dotsCanvas = document.getElementById('dotsCanvas');
+  const jigsawCanvas = document.getElementById('jigsawCanvas');
+  scratchCanvas.style.display = 'none';
+  dotsCanvas.style.display = 'none';
+  jigsawCanvas.style.display = 'none';
+
+  // Weighted so scratch & jigsaw show up more often than connect-the-dots
+  const types = ['scratch', 'scratch', 'dots', 'jigsaw', 'jigsaw'];
+  currentGameType = types[Math.floor(Math.random() * types.length)];
+
+  if(currentGameType === 'scratch'){
+    scratchCanvas.style.display = 'block';
+    initScratchCard();
+  } else if(currentGameType === 'dots'){
+    dotsCanvas.style.display = 'block';
+    initDotsGame();
+  } else {
+    jigsawCanvas.style.display = 'block';
+    initJigsawGame();
+  }
+}
+
+function burstPow(text){
+  const b = document.createElement('div');
+  b.className='burst';
+  b.textContent = text;
+  document.body.appendChild(b);
+  setTimeout(()=>b.remove(), 750);
+}
+
+async function completeMission(reactionEmoji){
+  const m = getCurrentMission();
+  const today = todayStr();
+  const isNewDay = state.lastPlayDate !== today;
+
+  if(isNewDay){
+    if(state.lastPlayDate === yesterdayStr()){
+      state.streak += 1;
+    } else {
+      state.streak = 1;
+    }
+    state.lastPlayDate = today;
+  }
+
+  state.totalTries += 1;
+  state.stickers.push({food:m.food, emoji:m.emoji, reaction:reactionEmoji, date:today});
+  state.missionPointer += 1;
+
+  await saveState();
+  burstPow('POW!');
+  renderHeroCard();
+  renderStickerWall();
+  renderShields();
+  renderTryBadges();
+  renderUpcoming();
+
+  document.getElementById('stepAction').classList.add('hidden');
+  document.getElementById('stepReaction').classList.add('hidden');
+  document.getElementById('stepDone').classList.remove('hidden');
+}
+
+function renderHeroCard(){
+  document.getElementById('heroAvatarCircle').textContent = state.avatar;
+  document.getElementById('heroAvatarCircle').style.background = state.cape + '33';
+  document.getElementById('heroAvatarCircle').style.borderColor = state.cape;
+  document.getElementById('heroNameDisplay').textContent = state.name + "'s HQ";
+  document.getElementById('heroRankDisplay').textContent = getRank(state.totalTries) + ' · ' + state.totalTries + ' missions tried';
+  document.getElementById('streakNum').textContent = state.streak;
+  document.getElementById('titleBanner').textContent = '★ ' + state.name.toUpperCase() + "'S HERO HQ ★";
+}
+
+function renderUpcoming(count){
+  count = count || 5;
+  const list = getMissionList();
+  const box = document.getElementById('upcomingList');
+  box.innerHTML='';
+  for(let i=0;i<Math.min(count, list.length); i++){
+    const idx = ((state.missionPointer + i) % list.length + list.length) % list.length;
+    const m = list[idx];
+    const el = document.createElement('div');
+    el.className='upcoming-item';
+    const tag = i===0 ? 'TODAY' : ('IN ' + i + (i===1?' MISSION':' MISSIONS'));
+    el.innerHTML = '<span class="u-emoji">'+m.emoji+'</span><span>'+m.food+'</span><span class="u-tag">'+tag+'</span>';
+    box.appendChild(el);
+  }
+}
+
+function renderHQ(){
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('hqScreen').classList.remove('hidden');
+  renderHeroCard();
+  loadMissionIntoPanel();
+  renderStickerWall();
+  renderShields();
+  renderTryBadges();
+  renderUpcoming();
+}
+
+function attachEvents(){
+  const scratchCanvas = document.getElementById('scratchCanvas');
+  const startScratch = (e)=>{ scratching = true; scratchAt(getScratchPos(e).x, getScratchPos(e).y); checkScratchProgress(); };
+  const moveScratch = (e)=>{ if(!scratching) return; const p = getScratchPos(e); scratchAt(p.x, p.y); checkScratchProgress(); };
+  const endScratch = ()=>{ scratching = false; };
+
+  scratchCanvas.addEventListener('mousedown', startScratch);
+  scratchCanvas.addEventListener('mousemove', moveScratch);
+  window.addEventListener('mouseup', endScratch);
+  scratchCanvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); startScratch(e); }, {passive:false});
+  scratchCanvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); moveScratch(e); }, {passive:false});
+  scratchCanvas.addEventListener('touchend', endScratch);
+
+  const dotsCanvas = document.getElementById('dotsCanvas');
+  dotsCanvas.addEventListener('click', (e)=>{
+    const rect = dotsCanvas.getBoundingClientRect();
+    processDotTap(e.clientX - rect.left, e.clientY - rect.top);
+  });
+  dotsCanvas.addEventListener('touchstart', (e)=>{
+    e.preventDefault();
+    const rect = dotsCanvas.getBoundingClientRect();
+    const t = e.touches[0];
+    processDotTap(t.clientX - rect.left, t.clientY - rect.top);
+  }, {passive:false});
+
+  const jigsawCanvas = document.getElementById('jigsawCanvas');
+  jigsawCanvas.addEventListener('mousedown', jigsawStartDrag);
+  jigsawCanvas.addEventListener('mousemove', jigsawDrag);
+  window.addEventListener('mouseup', jigsawEndDrag);
+  jigsawCanvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); jigsawStartDrag(e); }, {passive:false});
+  jigsawCanvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); jigsawDrag(e); }, {passive:false});
+  jigsawCanvas.addEventListener('touchend', jigsawEndDrag);
+
+  document.querySelectorAll('#stepAction .btn[data-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      pendingAction = btn.dataset.action;
+      document.getElementById('stepAction').classList.add('hidden');
+      document.getElementById('stepReaction').classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('#stepReaction .btn[data-reaction]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      completeMission(btn.dataset.reaction);
+    });
+  });
+
+  document.getElementById('skipLink').addEventListener('click', async ()=>{
+    state.missionPointer += 1;
+    await saveState();
+    loadMissionIntoPanel();
+    renderUpcoming();
+  });
+
+  document.getElementById('anotherMissionBtn').addEventListener('click', ()=>{
+    loadMissionIntoPanel();
+  });
+
+  document.getElementById('parentToggle').addEventListener('click', ()=>{
+    document.getElementById('parentPanel').classList.toggle('open');
+  });
+
+  document.getElementById('addFoodBtn').addEventListener('click', async ()=>{
+    const nameEl = document.getElementById('customFoodName');
+    const emojiEl = document.getElementById('customFoodEmoji');
+    const foodName = nameEl.value.trim();
+    if(!foodName) return;
+    const emoji = emojiEl.value.trim() || '🍽️';
+    state.customFoods.push({id:'custom-'+Date.now(), food:foodName, emoji});
+    await saveState();
+    nameEl.value=''; emojiEl.value='';
+    renderUpcoming();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', async ()=>{
+    if(confirm('This clears all stickers, streaks, and rank progress. Are you sure?')){
+      const keepName = state.name, keepAvatar = state.avatar, keepCape = state.cape;
+      state = defaultState(keepName, keepAvatar, keepCape);
+      await saveState();
+      renderHQ();
+    }
+  });
+}
+
+async function init(){
+  await loadState();
+  attachEvents();
+  if(state){ renderHQ(); } else { renderSetup(); }
+}
+
+init();
+</script>
+</body>
+</html>
