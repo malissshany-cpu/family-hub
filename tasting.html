@@ -70,6 +70,12 @@
   .badge.allergen-badge{ background:var(--coral-soft); color:var(--coral-deep); }
   .badge.success-badge{ background:var(--forest); color:#fff; }
 
+  .reorder{ display:flex; flex-direction:column; gap:3px; flex:0 0 auto; }
+  .drag-handle{ flex:0 0 auto; align-self:center; width:26px; height:36px; display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink-soft); cursor:grab; touch-action:none; letter-spacing:-2px; }
+  .drag-handle:active{ cursor:grabbing; }
+  .day-card.sortable-ghost{ opacity:.35; }
+  .day-card.sortable-chosen{ box-shadow:0 6px 16px rgba(38,48,43,.15); }
+
   .tries{ display:flex; gap:5px; margin-top:8px; }
   .try-box{ width:24px; height:24px; border-radius:6px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent; background:#fff; cursor:pointer; transition:.15s; }
   .try-box.checked{ background:var(--forest); border-color:var(--forest); color:#fff; }
@@ -179,6 +185,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 const STORAGE_KEY = 'teimot-data-v1';
 
@@ -278,7 +285,8 @@ function addFood(name, allergen){
   renderAll();
 }
 
-function foodCardHTML(food){
+function foodCardHTML(food, opts){
+  opts = opts || {};
   const st = status(food);
   const classes = ['day-card', st, food.allergen ? 'allergen' : ''].join(' ').trim();
   let badge = '<span class="badge">טרם התחילה</span>';
@@ -302,8 +310,11 @@ function foodCardHTML(food){
     </div>
   `;
 
+  const reorderHTML = st === 'done' ? '' : `<div class="drag-handle" title="גררי לשינוי סדר">⋮⋮</div>`;
+
   return `
-    <div class="${classes}">
+    <div class="${classes}" data-id="${food.id}">
+      ${reorderHTML}
       <div class="day-num">${numContent}</div>
       <div class="day-info">
         <div class="food">${food.name}</div>
@@ -316,6 +327,8 @@ function foodCardHTML(food){
   `;
 }
 
+let sortableInstance = null;
+
 function renderPlan(){
   const el = document.getElementById('plan');
   const pending = data.foods.filter(f => status(f) !== 'done');
@@ -324,13 +337,30 @@ function renderPlan(){
   if(pending.length === 0){
     html += '<div class="empty">כל המזונות ברשימה עברו בהצלחה! אפשר להוסיף עוד.</div>';
   } else {
-    html += pending.map(foodCardHTML).join('');
+    html += '<div id="pendingList">' + pending.map(f => foodCardHTML(f)).join('') + '</div>';
   }
   if(done.length){
     html += `<div class="section-title">הושלמו (${done.length})</div>`;
-    html += done.map(foodCardHTML).join('');
+    html += done.map(f => foodCardHTML(f)).join('');
   }
   el.innerHTML = html;
+
+  const listEl = document.getElementById('pendingList');
+  if(sortableInstance){ sortableInstance.destroy(); sortableInstance = null; }
+  if(listEl && window.Sortable){
+    sortableInstance = Sortable.create(listEl, {
+      handle: '.drag-handle',
+      animation: 150,
+      onEnd: function(){
+        const newOrderIds = Array.from(listEl.children).map(c => c.dataset.id);
+        const foodsById = {};
+        data.foods.forEach(f => foodsById[f.id] = f);
+        const newPending = newOrderIds.map(id => foodsById[id]);
+        data.foods = newPending.concat(done);
+        saveData();
+      }
+    });
+  }
 }
 
 function renderTrack(){
