@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>האתר שלנו   | Our Little Corner</title>
+<title>למידה | Learning</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap');
 
@@ -26,8 +26,27 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  .topbar{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 24px 20px 0;
+  }
+
+  .back{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Assistant', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--plum);
+    text-decoration: none;
+  }
+
+  .back:hover{ text-decoration: underline; }
+
   .hero{
-    padding: 56px 24px 40px;
+    padding: 32px 24px 40px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -42,21 +61,10 @@
     transform: translateX(-50%);
   }
 
-  .eyebrow{
-    font-family: 'Assistant', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    color: var(--plum);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    position: relative;
-  }
-
   h1{
     font-family: 'Rubik', sans-serif;
     font-weight: 900;
-    font-size: clamp(32px, 8vw, 52px);
+    font-size: clamp(30px, 7vw, 44px);
     color: var(--ink);
     line-height: 1.1;
     position: relative;
@@ -65,49 +73,16 @@
   .subtitle{
     font-family: 'Rubik', sans-serif;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 15px;
     color: #6b6560;
-    margin-top: 10px;
-    letter-spacing: 0.02em;
+    margin-top: 8px;
     direction: ltr;
   }
 
   .shelf-wrap{
     max-width: 920px;
     margin: 0 auto;
-    padding: 0 20px 40px;
-  }
-
-  .category{
-    margin-bottom: 56px;
-  }
-
-  .category-header{
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 22px;
-  }
-
-  .category-icon{
-    font-size: 22px;
-  }
-
-  .category-title{
-    font-family: 'Rubik', sans-serif;
-    font-weight: 700;
-    font-size: 22px;
-    color: var(--ink);
-  }
-
-  .category-title .en{
-    font-family: 'Assistant', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    color: #a29c93;
-    margin-right: 10px;
-    direction: ltr;
-    display: inline-block;
+    padding: 0 20px 80px;
   }
 
   .shelf{
@@ -151,8 +126,6 @@
   }
 
   .card:nth-child(1){ --tilt: -2deg; }
-  .card:nth-child(2){ --tilt: 1.5deg; }
-  .card:nth-child(3){ --tilt: -1deg; }
 
   .badge{
     width: 64px; height: 64px;
@@ -165,6 +138,7 @@
   .badge.mint{ background: var(--mint); }
   .badge.butter{ background: var(--butter); }
   .badge.plum{ background: var(--plum); }
+  .badge.peach{ background: #F2A65A; }
 
   .card h2{
     font-family: 'Rubik', sans-serif;
@@ -230,34 +204,23 @@
 </head>
 <body>
 
+  <div class="topbar">
+    <a href="index.html" class="back">← חזרה הביתה</a>
+  </div>
+
   <div class="hero">
-    <div class="eyebrow">Family Projects</div>
-    <h1>הפינה שלנו</h1>
-    <div class="subtitle">Things we've been building together</div>
+    <h1>למידה</h1>
+    <div class="subtitle">Learning</div>
   </div>
 
   <div class="shelf-wrap">
     <div class="shelf">
 
-      <a href="games.html" class="card">
-        <div class="badge mint">🎲</div>
-        <h2>משחקים</h2>
-        <p>Games</p>
-        <span class="tag">Explore</span>
-      </a>
-
-      <a href="food.html" class="card">
-        <div class="badge plum">🍽️</div>
-        <h2>אוכל</h2>
-        <p>Food</p>
-        <span class="tag">Explore</span>
-      </a>
-
-      <a href="learning.html" class="card">
-        <div class="badge butter">📚</div>
-        <h2>למידה</h2>
-        <p>Learning</p>
-        <span class="tag">Explore</span>
+      <a href="family-timeline.html" class="card">
+        <div class="badge peach">🎂</div>
+        <h2>מי נולד קודם?</h2>
+        <p>טיילו על ציר הזמן המשפחתי וגלו מי מבוגר יותר.</p>
+        <span class="tag">Play now</span>
       </a>
 
     </div>
