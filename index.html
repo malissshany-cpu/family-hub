@@ -14,6 +14,7 @@
     --paper: #FBF7EF;
     --ink: #2C2A28;
     --shelf: #C9A876;
+    --peach: #F2A65A;
   }
 
   *{ box-sizing: border-box; margin:0; padding:0; }
@@ -153,6 +154,7 @@
   .card:nth-child(1){ --tilt: -2deg; }
   .card:nth-child(2){ --tilt: 1.5deg; }
   .card:nth-child(3){ --tilt: -1deg; }
+  .card:nth-child(4){ --tilt: 2deg; }
 
   .badge{
     width: 64px; height: 64px;
@@ -165,6 +167,7 @@
   .badge.mint{ background: var(--mint); }
   .badge.butter{ background: var(--butter); }
   .badge.plum{ background: var(--plum); }
+  .badge.peach{ background: var(--peach); }
 
   .card h2{
     font-family: 'Rubik', sans-serif;
@@ -257,6 +260,13 @@
         <div class="badge butter">📚</div>
         <h2>למידה</h2>
         <p>Learning</p>
+        <span class="tag">Explore</span>
+      </a>
+
+      <a href="tasks.html" class="card">
+        <div class="badge peach">☀️</div>
+        <h2>משימות</h2>
+        <p>Tasks</p>
         <span class="tag">Explore</span>
       </a>
 
