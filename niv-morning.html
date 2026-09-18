@@ -6,6 +6,14 @@
 <title>רשימת המשימות של הבוקר</title>
 <style>
   * { box-sizing: border-box; }
+  #confettiCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
   body {
     margin: 0;
     padding: 20px 14px 40px;
@@ -148,6 +156,8 @@
 </head>
 <body>
 
+<canvas id="confettiCanvas"></canvas>
+
 <a href="tasks.html" class="back">← חזרה למשימות</a>
 <h1>☀️ המשימות של הבוקר שלי ☀️</h1>
 
@@ -237,13 +247,140 @@
     celebrate.textContent = checkedCount === total ? '🎉 כל הכבוד! סיימת הכל! 🎉' : '';
   }
 
+  // ---- confetti engine ----
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const confettiCtx = confettiCanvas.getContext('2d');
+  let confettiParticles = [];
+  let confettiRunning = false;
+  const CONFETTI_COLORS = ['#e97452', '#f2c879', '#7cc96a', '#6b4c6b', '#4b8a3f', '#f2a65a', '#5aa9e6'];
+
+  function resizeConfettiCanvas() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  resizeConfettiCanvas();
+  window.addEventListener('resize', resizeConfettiCanvas);
+
+  function spawnConfetti(originX, originY, count, opts) {
+    opts = opts || {};
+    const spread = opts.spread !== undefined ? opts.spread : Math.PI / 2;
+    const baseAngle = opts.baseAngle !== undefined ? opts.baseAngle : -Math.PI / 2;
+    const power = opts.power || 9;
+    const maxLife = opts.maxLife || 80;
+
+    for (let i = 0; i < count; i++) {
+      const angle = baseAngle + (Math.random() - 0.5) * spread;
+      const speed = power * (0.5 + Math.random());
+      confettiParticles.push({
+        x: originX,
+        y: originY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 5 + Math.random() * 6,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 22,
+        gravity: 0.28 + Math.random() * 0.16,
+        drag: 0.985,
+        life: 0,
+        maxLife: maxLife + Math.random() * 30,
+        shape: Math.random() < 0.5 ? 'rect' : 'circle'
+      });
+    }
+
+    if (!confettiRunning) {
+      confettiRunning = true;
+      requestAnimationFrame(confettiTick);
+    }
+  }
+
+  function confettiTick() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+    confettiParticles.forEach(p => {
+      p.vy += p.gravity;
+      p.vx *= p.drag;
+      p.vy *= p.drag;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.life++;
+
+      confettiCtx.save();
+      confettiCtx.translate(p.x, p.y);
+      confettiCtx.rotate(p.rotation * Math.PI / 180);
+      confettiCtx.globalAlpha = Math.max(0, 1 - p.life / p.maxLife);
+      confettiCtx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        confettiCtx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        confettiCtx.beginPath();
+        confettiCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        confettiCtx.fill();
+      }
+      confettiCtx.restore();
+    });
+
+    confettiParticles = confettiParticles.filter(p => p.life < p.maxLife && p.y < confettiCanvas.height + 40);
+
+    if (confettiParticles.length > 0) {
+      requestAnimationFrame(confettiTick);
+    } else {
+      confettiRunning = false;
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+  }
+
+  function celebrateTask(cb) {
+    const rect = cb.getBoundingClientRect();
+    spawnConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 22, {
+      spread: Math.PI * 0.9,
+      power: 7,
+      maxLife: 60
+    });
+  }
+
+  function celebrateAllDone() {
+    const w = window.innerWidth;
+
+    // fireworks burst from the center
+    spawnConfetti(w / 2, window.innerHeight * 0.35, 140, {
+      spread: Math.PI * 2,
+      power: 13,
+      maxLife: 150
+    });
+
+    // waves of confetti raining from the top
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        spawnConfetti(Math.random() * w, -20, 35, {
+          baseAngle: Math.PI / 2,
+          spread: Math.PI * 0.7,
+          power: 5,
+          maxLife: 160
+        });
+      }, i * 150);
+    }
+  }
+  // ---- end confetti engine ----
+
   document.querySelectorAll('.checkbox').forEach(cb => {
     cb.addEventListener('click', () => {
       const state = loadState();
       const id = cb.dataset.id;
-      state[id] = !state[id];
+      const newlyChecked = !state[id];
+      state[id] = newlyChecked;
       saveState(state);
       render();
+
+      if (newlyChecked) {
+        celebrateTask(cb);
+
+        const checkedCount = Object.values(state).filter(Boolean).length;
+        if (checkedCount === total) {
+          setTimeout(celebrateAllDone, 150);
+        }
+      }
     });
   });
 
